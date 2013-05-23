@@ -59,6 +59,29 @@ public:
 		x |= x >> 16;
 		return x + 1;
 	}
+
+	static inline uint32_t ReadUTF8(const char* src, uint32_t& sz) {
+	    uint8_t b = *src;
+
+	    if ( (b&0x80) == 0) {
+	        sz = 1;
+	        return b&0x7F;
+	    }
+
+	    if ( (b&0xE0) == 0xC0) {
+	        sz = 2;
+	        return ((b&0x1F)<<6) |(*(src+1) &0x3F);
+	    }
+
+	    if ( (b&0xF0) == 0xE0) {
+	        sz = 3;
+	        return ((b&0x0F)<<12)|((*(src+1)&0x3F)<<6)|((*(src+2)&0x3F));
+	    }
+
+	    sz = 4;
+	    return ((b&0x0F)<<18)|((*(src+1)&0x3F)<<12)|((*(src+2)&0x3F)<<6)|(*(src+3)&0x3F);
+	}
+
 private:
 	MathUtil();
 };
